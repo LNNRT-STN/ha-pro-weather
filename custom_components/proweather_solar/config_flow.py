@@ -8,6 +8,7 @@ from collections.abc import Mapping
 from typing import Any
 
 import voluptuous as vol
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -18,6 +19,8 @@ from homeassistant.core import callback
 from homeassistant.data_entry_flow import section
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
+    EntitySelector,
+    EntitySelectorConfig,
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
@@ -28,6 +31,7 @@ from homeassistant.helpers.selector import (
 
 from .const import (
     CONF_BASE_URL,
+    CONF_PRODUCTION_SENSOR,
     CONF_SCAN_INTERVAL,
     DEFAULT_BASE_URL,
     DEFAULT_SCAN_INTERVAL,
@@ -131,10 +135,13 @@ class ProWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
 class ProWeatherOptionsFlow(OptionsFlowWithReload):
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
-            return self.async_create_entry(
-                data={CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL])}
-            )
-        current = self.config_entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+            data: dict[str, Any] = {CONF_SCAN_INTERVAL: int(user_input[CONF_SCAN_INTERVAL])}
+            if user_input.get(CONF_PRODUCTION_SENSOR):
+                data[CONF_PRODUCTION_SENSOR] = user_input[CONF_PRODUCTION_SENSOR]
+            return self.async_create_entry(data=data)
+        options = self.config_entry.options
+        current = options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+        sensor = options.get(CONF_PRODUCTION_SENSOR)
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
@@ -147,7 +154,14 @@ class ProWeatherOptionsFlow(OptionsFlowWithReload):
                             unit_of_measurement="min",
                             mode=NumberSelectorMode.BOX,
                         )
-                    )
+                    ),
+                    # Optional and clearable: leaving it empty stops uploads.
+                    vol.Optional(
+                        CONF_PRODUCTION_SENSOR,
+                        description={"suggested_value": sensor} if sensor else None,
+                    ): EntitySelector(
+                        EntitySelectorConfig(domain="sensor", device_class=SensorDeviceClass.ENERGY)
+                    ),
                 }
             ),
         )
