@@ -94,8 +94,13 @@ pv_forecast_tomorrow: sensor.ardooie_solar_energy_tomorrow
 Use your own entity ids (the prefix is your station's name). Leave
 `pv_forecast_d3` and `pv_forecast_d4` out: the forecast covers 48 hours.
 
-For now `pv_estimate10` and `pv_estimate90` equal the estimate. A real
-pessimistic and optimistic range is planned.
+`pv_estimate10` and `pv_estimate90` are the cautious and bright case: one
+hour in ten is expected to come in below `pv_estimate10`, and one in ten
+above `pv_estimate90`. The width of that range comes from how far your own
+station's solar sensor has landed from the forecast (a station without a
+sensor borrows the width measured at other stations). At night, and on a
+forecast from before Pro Weather served the range, both equal
+`pv_estimate`.
 
 ## What "corrected" means
 

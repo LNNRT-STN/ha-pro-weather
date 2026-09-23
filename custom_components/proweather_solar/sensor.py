@@ -55,11 +55,11 @@ def detailed_forecast(data: SolarData, start: datetime, end: datetime) -> list[d
                 {
                     "period_start": dt_util.as_local(half).isoformat(),
                     "pv_estimate": kw,
-                    # Phase 3 brings real P10/P90 from the engine's model
-                    # spread; until then both equal the estimate, which
-                    # Predbat reads as "no uncertainty information".
-                    "pv_estimate10": kw,
-                    "pv_estimate90": kw,
+                    # The engine's P10/P90 (the API's `p10`/`p90`), which
+                    # Predbat's pessimistic weighting reads. Equal to the
+                    # estimate where the API had no band.
+                    "pv_estimate10": round(s.p10 / 1000, 4),
+                    "pv_estimate90": round(s.p90 / 1000, 4),
                 }
             )
     return out
