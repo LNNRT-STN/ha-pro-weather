@@ -43,10 +43,14 @@
   "options": {
     "step": {
       "init": {
-        "title": "Polling",
-        "description": "A new forecast arrives once an hour. Polling more often than every 15 minutes gains nothing.",
+        "title": "Options",
+        "description": "A new forecast arrives once an hour. Polling more often than every 15 minutes gains nothing.\n\nPick the energy sensor that counts what your panels make (the one the Energy dashboard uses for solar production) and the integration sends each finished hour to Pro Weather, so the forecast learns the shade and dirt your station cannot see.",
         "data": {
-          "scan_interval": "Update interval (minutes)"
+          "scan_interval": "Update interval (minutes)",
+          "production_sensor": "Solar production sensor"
+        },
+        "data_description": {
+          "production_sensor": "Optional. An energy sensor in kWh or Wh for all your panels together. Leave empty to send nothing."
         }
       }
     }

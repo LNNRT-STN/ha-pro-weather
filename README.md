@@ -34,7 +34,27 @@ unknown, the site is not on the Pro plan, or there are no panels to forecast
 yet. If you regenerate the token later, Home Assistant asks for the new one.
 
 **Options:** the update interval, 30 minutes by default and 15 at the least. A
-new forecast arrives once an hour, so polling faster gains nothing.
+new forecast arrives once an hour, so polling faster gains nothing. And,
+optionally, your **Solar production sensor** (see below).
+
+## Measured production
+
+Pick the energy sensor that counts what your panels make, the one the Energy
+dashboard uses for solar production, under **Configure** on the integration.
+At quarter past every hour the integration reads Home Assistant's own hourly
+statistics for it and sends the finished hours of the last day to
+`https://pro-weather.com/api/solar/production`. Sending an hour again
+replaces it, so an hour missed while Home Assistant or the network was down
+is filled in on the next run. An hour with no data is not sent.
+
+From those hours Pro Weather learns how much of the forecast your roof really
+delivers: shade from trees and chimneys, and dirty panels, which the
+station's solar sensor cannot see. After 24 good hours every forecast number
+here includes it. The dashboard's **Setup > Solar forecast** shows the
+number. It needs the recorder, which every standard Home Assistant has.
+
+If Pro Weather refuses the numbers, the log says why (for example a
+whole-house meter that reports more than your panels could make).
 
 ## Energy dashboard
 
@@ -86,13 +106,15 @@ favours get more say. **Off** means every model counts the same: the station
 has no solar sensor, or it has not been scored yet. The forecast works
 either way; corrected is usually closer.
 
-What no forecast here knows: shade from trees or chimneys, snow on the
-panels, or dirty glass.
+What the station's sensor cannot know: shade from trees or chimneys, snow on
+the panels, or dirty glass. Sending your measured production (above) teaches
+the forecast the shade and the dirt.
 
 ## Privacy
 
-The integration talks to `https://pro-weather.com/api/solar` only, with your
-token in an `Authorization` header. The token is never logged, and the
+The integration talks to `https://pro-weather.com/api/solar` only (and to
+`/api/solar/production` when you picked a production sensor: your hourly
+solar energy, nothing else), with your token in an `Authorization` header. The token is never logged, and the
 diagnostics download redacts it.
 
 ## Development
