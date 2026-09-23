@@ -100,6 +100,11 @@ class Slot:
     end: datetime
     watts: float  # mean AC power over the hour
     wh: float
+    # The cautious and bright case, W: one hour in ten is expected below
+    # `p10` and one above `p90`. The API sends them from engine 0.6.0; an
+    # older response (or a night hour) has none, and both equal `watts`.
+    p10: float
+    p90: float
 
 
 @dataclass
@@ -155,7 +160,18 @@ def parse_slots(body: dict[str, Any]) -> list[Slot]:
         end = dt_util.parse_datetime(raw.get("end", ""))
         if start is None or end is None:
             continue
-        out.append(Slot(start, end, float(raw.get("value") or 0), float(raw.get("wh") or 0)))
+        watts = float(raw.get("value") or 0)
+        p10, p90 = raw.get("p10"), raw.get("p90")
+        out.append(
+            Slot(
+                start,
+                end,
+                watts,
+                float(raw.get("wh") or 0),
+                watts if p10 is None else float(p10),
+                watts if p90 is None else float(p90),
+            )
+        )
     return out
 
 

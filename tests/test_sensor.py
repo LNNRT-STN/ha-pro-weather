@@ -59,6 +59,18 @@ async def test_detailed_forecast_is_predbat_shape(hass, setup):
     assert len(hass.states.get(P + "energy_tomorrow").attributes["detailedForecast"]) == 40
 
 
+async def test_detailed_forecast_carries_the_band(hass, setup, aioclient_mock):
+    body = make_body()
+    for slot in body["slots"]:
+        slot["p10"], slot["p90"] = 400, 1500
+    aioclient_mock.clear_requests()
+    aioclient_mock.get(URL, json=body)
+    await setup.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+    first = hass.states.get(P + "energy_today").attributes["detailedForecast"][0]
+    assert (first["pv_estimate"], first["pv_estimate10"], first["pv_estimate90"]) == (1.0, 0.4, 1.5)
+
+
 async def test_past_hours_survive_a_later_poll(hass, setup, aioclient_mock, freezer):
     # Six hours later the API serves from 12:00Z; 04Z-11Z are kept from the
     # first poll, so today is still the whole local day.
