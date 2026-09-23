@@ -1,0 +1,90 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pro Weather solar forecast",
+        "description": "Paste the API token from your site's dashboard, under Setup > Solar forecast. It starts with pws_.",
+        "data": {
+          "token": "API token"
+        },
+        "sections": {
+          "advanced": {
+            "name": "Advanced",
+            "data": {
+              "base_url": "Server address"
+            },
+            "data_description": {
+              "base_url": "Leave as is unless you are testing against a staging server or a mock."
+            }
+          }
+        }
+      },
+      "reauth_confirm": {
+        "title": "New API token needed",
+        "description": "Pro Weather no longer accepts the saved token. It was probably regenerated or revoked. Paste the current token from Setup > Solar forecast.",
+        "data": {
+          "token": "API token"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Pro Weather does not recognise this token. Copy it again from Setup > Solar forecast.",
+      "plan_required": "The solar forecast is part of the Pro plan, and this site is not on it.",
+      "not_set_up": "The token works, but there is nothing to forecast yet: add your panels under Setup > Solar forecast, and make sure the station has a location.",
+      "rate_limited": "Too many requests from your network in the last hour. Try again later.",
+      "cannot_connect": "Could not reach Pro Weather. Check the connection and try again.",
+      "invalid_url": "The server address must start with https:// or http://."
+    },
+    "abort": {
+      "already_configured": "This token is already set up.",
+      "reauth_successful": "The new token works. The forecast is back."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling",
+        "description": "A new forecast arrives once an hour. Polling more often than every 15 minutes gains nothing.",
+        "data": {
+          "scan_interval": "Update interval (minutes)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "corrected": {
+        "name": "Corrected by station"
+      }
+    },
+    "sensor": {
+      "power_now": {
+        "name": "Power now"
+      },
+      "energy_this_hour": {
+        "name": "Energy this hour"
+      },
+      "energy_next_hour": {
+        "name": "Energy next hour"
+      },
+      "energy_today": {
+        "name": "Energy today"
+      },
+      "energy_remaining_today": {
+        "name": "Energy remaining today"
+      },
+      "energy_tomorrow": {
+        "name": "Energy tomorrow"
+      },
+      "peak_power_today": {
+        "name": "Peak power today"
+      },
+      "peak_time_today": {
+        "name": "Peak time today"
+      },
+      "issued_at": {
+        "name": "Forecast issued"
+      }
+    }
+  }
+}

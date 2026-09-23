@@ -1,0 +1,13 @@
+{
+  "domain": "proweather_solar",
+  "name": "Pro Weather Solar Forecast",
+  "codeowners": ["@LNNRT-STN"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/LNNRT-STN/ha-pro-weather",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/LNNRT-STN/ha-pro-weather/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
