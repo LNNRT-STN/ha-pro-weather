@@ -1,0 +1,53 @@
+blueprint:
+  name: Pro Weather - high wind
+  description: >-
+    Closes awnings, blinds or other covers when your Pro Weather station
+    measures a gust above your limit, then runs your actions.
+  domain: automation
+  source_url: https://github.com/LNNRT-STN/ha-pro-weather/blob/main/blueprints/automation/proweather/high_wind.yaml
+  input:
+    gust:
+      name: Wind gust sensor
+      selector:
+        entity:
+          filter:
+            integration: proweather_solar
+            domain: sensor
+            device_class: wind_speed
+    limit:
+      name: Gust limit
+      description: In the gust sensor's unit (km/h, mph...). Check your awning's rating.
+      default: 50
+      selector:
+        number:
+          min: 5
+          max: 200
+          mode: box
+    covers:
+      name: Covers to close
+      default: {}
+      selector:
+        target:
+          entity:
+            domain: cover
+    actions:
+      name: Actions
+      description: Anything else to do, for example a notification.
+      default: []
+      selector:
+        action: {}
+
+mode: single
+max_exceeded: silent
+
+triggers:
+  - trigger: numeric_state
+    entity_id: !input gust
+    above: !input limit
+
+actions:
+  - action: cover.close_cover
+    target: !input covers
+    continue_on_error: true
+  - choose: []
+    default: !input actions

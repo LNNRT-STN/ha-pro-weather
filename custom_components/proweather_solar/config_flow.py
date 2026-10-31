@@ -1,4 +1,5 @@
-"""Config flow: paste the token, validated with one API call."""
+"""Config flow: a solar forecast (paste the token) or a weather station (name
+its site), each validated with one API call."""
 
 from __future__ import annotations
 
@@ -33,12 +34,14 @@ from .const import (
     CONF_BASE_URL,
     CONF_PRODUCTION_SENSOR,
     CONF_SCAN_INTERVAL,
+    CONF_SUBDOMAIN,
     DEFAULT_BASE_URL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     MIN_SCAN_INTERVAL,
 )
 from .coordinator import ApiError, async_fetch
+from .station import async_fetch_view, async_resolve_host, parse_station
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -66,6 +69,43 @@ class ProWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(config_entry: ConfigEntry) -> ProWeatherOptionsFlow:
         return ProWeatherOptionsFlow()
 
+    @classmethod
+    @callback
+    def async_supports_options_flow(cls, config_entry: ConfigEntry) -> bool:
+        # The options (poll interval, production sensor) are the solar
+        # forecast's; a station polls on the server's own 5-minute tick.
+        return CONF_SUBDOMAIN not in config_entry.data
+
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        return self.async_show_menu(step_id="user", menu_options=["station", "solar"])
+
+    async def async_step_station(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            session = async_get_clientsession(self.hass)
+            subdomain, host = parse_station(user_input[CONF_SUBDOMAIN])
+            try:
+                if host:
+                    subdomain = await async_resolve_host(session, host)
+                if not subdomain:
+                    errors["base"] = "invalid_station"
+                else:
+                    await self.async_set_unique_id(subdomain)
+                    self._abort_if_unique_id_configured()
+                    view = await async_fetch_view(session, subdomain)
+                    title = (view.get("station") or {}).get("title") or subdomain
+                    return self.async_create_entry(title=title, data={CONF_SUBDOMAIN: subdomain})
+            except ApiError as err:
+                _LOGGER.debug("Station check for %s failed: %s", subdomain or host, err)
+                errors["base"] = err.reason
+        return self.async_show_form(
+            step_id="station",
+            data_schema=vol.Schema({vol.Required(CONF_SUBDOMAIN): str}),
+            errors=errors,
+        )
+
     async def _validate(self, token: str, base_url: str) -> tuple[dict | None, dict[str, str]]:
         try:
             body = await async_fetch(async_get_clientsession(self.hass), base_url, token)
@@ -75,7 +115,7 @@ class ProWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
             return None, {"base": err.reason}
         return body, {}
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+    async def async_step_solar(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
             token = _clean_token(user_input[CONF_TOKEN])
@@ -106,7 +146,7 @@ class ProWeatherConfigFlow(ConfigFlow, domain=DOMAIN):
                 ),
             }
         )
-        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+        return self.async_show_form(step_id="solar", data_schema=schema, errors=errors)
 
     async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> ConfigFlowResult:
         return await self.async_step_reauth_confirm()

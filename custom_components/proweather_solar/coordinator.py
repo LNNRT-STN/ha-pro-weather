@@ -53,6 +53,12 @@ class NotSetUp(ApiError):
     reason = "not_set_up"
 
 
+class NotFound(ApiError):
+    """404: no such station, or its site is unpublished or lapsed."""
+
+    reason = "not_found"
+
+
 class RateLimited(ApiError):
     """429: 60 requests per hour per IP."""
 
@@ -62,24 +68,24 @@ class RateLimited(ApiError):
 _STATUS_ERRORS: dict[int, type[ApiError]] = {
     401: InvalidAuth,
     403: PlanRequired,
+    404: NotFound,
     409: NotSetUp,
     429: RateLimited,
 }
 
 
-async def async_fetch(session: aiohttp.ClientSession, base_url: str, token: str) -> dict[str, Any]:
-    """One GET /api/solar. Raises an ApiError subclass on anything but a 200.
+async def async_get_json(
+    session: aiohttp.ClientSession, url: str, headers: dict[str, str] | None = None
+) -> Any:
+    """One GET. Raises an ApiError subclass on anything but a 200.
 
     Error messages carry the status and the API's own `error` text only:
-    the token is in a header, never in the URL, so nothing raised here can
-    leak it into the log.
+    tokens travel in a header, never in the URL, so nothing raised here can
+    leak one into the log.
     """
     try:
         async with asyncio.timeout(30):
-            async with session.get(
-                f"{base_url.rstrip('/')}/api/solar",
-                headers={"Authorization": f"Bearer {token}"},
-            ) as resp:
+            async with session.get(url, headers=headers) as resp:
                 status = resp.status
                 if status == 200:
                     return await resp.json()
@@ -88,8 +94,15 @@ async def async_fetch(session: aiohttp.ClientSession, base_url: str, token: str)
                 except aiohttp.ContentTypeError, ValueError, AttributeError:
                     message = ""
     except (TimeoutError, aiohttp.ClientError) as err:
-        raise ApiError(f"Cannot reach {base_url}: {type(err).__name__}") from None
+        raise ApiError(f"Cannot reach {url}: {type(err).__name__}") from None
     raise _STATUS_ERRORS.get(status, ApiError)(f"HTTP {status}: {message}".strip(": "))
+
+
+async def async_fetch(session: aiohttp.ClientSession, base_url: str, token: str) -> dict[str, Any]:
+    """One GET /api/solar."""
+    return await async_get_json(
+        session, f"{base_url.rstrip('/')}/api/solar", {"Authorization": f"Bearer {token}"}
+    )
 
 
 @dataclass(frozen=True, slots=True)

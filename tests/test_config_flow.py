@@ -9,8 +9,12 @@ from .conftest import TOKEN, URL, make_body
 
 
 async def _start(hass):
-    return await hass.config_entries.flow.async_init(
+    result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    assert result["type"] is FlowResultType.MENU
+    return await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": "solar"}
     )
 
 

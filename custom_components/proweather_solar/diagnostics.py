@@ -7,16 +7,28 @@ from typing import Any
 from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.core import HomeAssistant
 
+from .const import CONF_SUBDOMAIN
 from .coordinator import ProWeatherConfigEntry
+from .station import StationConfigEntry
 
 TO_REDACT = {"token"}
 
 
 async def async_get_config_entry_diagnostics(
-    hass: HomeAssistant, entry: ProWeatherConfigEntry
+    hass: HomeAssistant, entry: ProWeatherConfigEntry | StationConfigEntry
 ) -> dict[str, Any]:
     coordinator = entry.runtime_data
     data = coordinator.data
+    if CONF_SUBDOMAIN in entry.data:
+        # All public: the same payload the station's own page serves.
+        return {
+            "entry": {"data": dict(entry.data)},
+            "last_update_success": coordinator.last_update_success,
+            "last_exception": repr(coordinator.last_exception)
+            if coordinator.last_exception
+            else None,
+            "response": data,
+        }
     return {
         "entry": {
             "data": async_redact_data(entry.data, TO_REDACT),

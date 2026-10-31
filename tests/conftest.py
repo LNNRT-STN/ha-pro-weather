@@ -1,6 +1,9 @@
 """Shared fixtures: a fake API response and a set-up config entry."""
 
+import copy
+import json
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -63,3 +66,42 @@ async def setup(hass, entry, aioclient_mock, freezer):
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
     return entry
+
+
+VIEW_URL = "https://pro-weather.com/api/v1/ardooie/view?range=24h"
+# A real /api/v1/ardooie/view?range=24h body from 2026-10-31 15:25 UTC, with
+# the series and records nulled and the hourly forecast cut to 48 hours.
+VIEW = json.loads((Path(__file__).parent / "fixtures" / "view.json").read_text())
+
+
+def make_view(**changes) -> dict:
+    view = copy.deepcopy(VIEW)
+    view.update(changes)
+    return view
+
+
+@pytest.fixture
+def station_entry() -> MockConfigEntry:
+    return MockConfigEntry(
+        domain=DOMAIN,
+        title="Weerstation Ardooie",
+        data={"subdomain": "ardooie"},
+        unique_id="ardooie",
+    )
+
+
+@pytest.fixture
+def view() -> dict:
+    """The body the station setup serves; change it before `station`."""
+    return make_view()
+
+
+@pytest.fixture
+async def station(hass, station_entry, view, aioclient_mock, freezer):
+    """Station entry set up at 2026-10-31 15:30 UTC."""
+    freezer.move_to("2026-10-31T15:30:00Z")
+    aioclient_mock.get(VIEW_URL, json=view)
+    station_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(station_entry.entry_id)
+    await hass.async_block_till_done()
+    return station_entry

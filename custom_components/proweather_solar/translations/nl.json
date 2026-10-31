@@ -1,0 +1,180 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pro Weather",
+        "description": "Wat wil je toevoegen?",
+        "menu_options": {
+          "station": "Weerstation: metingen, verwachting en waarschuwingen",
+          "solar": "Zonneverwachting: de vermogensverwachting van je panelen (Pro-abonnement)"
+        }
+      },
+      "station": {
+        "title": "Pro Weather-weerstation",
+        "description": "Geef het adres van het station, bijvoorbeeld ardooie.pro-weather.com, een eigen domein of gewoon ardooie. Elk gepubliceerd Pro Weather-station werkt, zonder token.",
+        "data": {
+          "subdomain": "Adres van het station"
+        }
+      },
+      "solar": {
+        "title": "Pro Weather-zonneverwachting",
+        "description": "Plak de API-token uit het dashboard van je site, onder Instellingen > Zonneverwachting. Hij begint met pws_.",
+        "data": {
+          "token": "API-token"
+        },
+        "sections": {
+          "advanced": {
+            "name": "Geavanceerd",
+            "data": {
+              "base_url": "Serveradres"
+            },
+            "data_description": {
+              "base_url": "Laat staan, tenzij je tegen een testserver of een mock werkt."
+            }
+          }
+        }
+      },
+      "reauth_confirm": {
+        "title": "Nieuwe API-token nodig",
+        "description": "Pro Weather aanvaardt de bewaarde token niet meer. Hij werd waarschijnlijk vernieuwd of ingetrokken. Plak de huidige token uit Instellingen > Zonneverwachting.",
+        "data": {
+          "token": "API-token"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Pro Weather herkent deze token niet. Kopieer hem opnieuw uit Instellingen > Zonneverwachting.",
+      "plan_required": "De zonneverwachting hoort bij het Pro-abonnement, en deze site heeft dat niet.",
+      "not_set_up": "De token werkt, maar er is nog niets te voorspellen: voeg je panelen toe onder Instellingen > Zonneverwachting en zorg dat het station een locatie heeft.",
+      "rate_limited": "Te veel verzoeken vanaf je netwerk in het afgelopen uur. Probeer het later opnieuw.",
+      "cannot_connect": "Pro Weather is niet bereikbaar. Controleer de verbinding en probeer het opnieuw.",
+      "invalid_url": "Het serveradres moet beginnen met https:// of http://.",
+      "not_found": "Geen gepubliceerd Pro Weather-station op dit adres.",
+      "invalid_station": "Dat is geen stationsadres. Probeer iets als ardooie.pro-weather.com."
+    },
+    "abort": {
+      "already_configured": "Dit is al ingesteld.",
+      "reauth_successful": "De nieuwe token werkt. De verwachting is terug."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opties",
+        "description": "Er komt elk uur een nieuwe verwachting. Vaker dan om de 15 minuten ophalen levert niets op.\n\nKies de energiesensor die telt wat je panelen opbrengen (die het Energie-dashboard gebruikt voor zonne-opbrengst), dan stuurt de integratie elk afgelopen uur naar Pro Weather, zodat de verwachting de schaduw en het vuil leert die je station niet ziet.",
+        "data": {
+          "scan_interval": "Update-interval (minuten)",
+          "production_sensor": "Sensor zonne-opbrengst"
+        },
+        "data_description": {
+          "production_sensor": "Optioneel. Een energiesensor in kWh of Wh voor al je panelen samen. Laat leeg om niets te sturen."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "corrected": {
+        "name": "Gecorrigeerd door station"
+      },
+      "warning": {
+        "name": "Weerwaarschuwing"
+      }
+    },
+    "sensor": {
+      "power_now": {
+        "name": "Vermogen nu"
+      },
+      "energy_this_hour": {
+        "name": "Energie dit uur"
+      },
+      "energy_next_hour": {
+        "name": "Energie volgend uur"
+      },
+      "energy_today": {
+        "name": "Energie vandaag"
+      },
+      "energy_remaining_today": {
+        "name": "Resterende energie vandaag"
+      },
+      "energy_tomorrow": {
+        "name": "Energie morgen"
+      },
+      "peak_power_today": {
+        "name": "Piekvermogen vandaag"
+      },
+      "peak_time_today": {
+        "name": "Piektijd vandaag"
+      },
+      "issued_at": {
+        "name": "Verwachting uitgegeven"
+      },
+      "feels_like": {
+        "name": "Gevoelstemperatuur"
+      },
+      "dew_point": {
+        "name": "Dauwpunt"
+      },
+      "wind_speed": {
+        "name": "Windsnelheid"
+      },
+      "wind_gust": {
+        "name": "Windstoot"
+      },
+      "wind_bearing": {
+        "name": "Windrichting"
+      },
+      "rain_today": {
+        "name": "Regen vandaag"
+      },
+      "rain_rate": {
+        "name": "Regenintensiteit"
+      },
+      "solar": {
+        "name": "Zonnestraling"
+      },
+      "uv": {
+        "name": "UV-index"
+      },
+      "temperature_high_today": {
+        "name": "Maximum vandaag"
+      },
+      "temperature_low_today": {
+        "name": "Minimum vandaag"
+      },
+      "wind_gust_max_today": {
+        "name": "Sterkste windstoot vandaag"
+      },
+      "pressure_trend": {
+        "name": "Luchtdrukverandering (3 u)"
+      },
+      "cloud_base": {
+        "name": "Wolkenbasis"
+      },
+      "wind_run": {
+        "name": "Windloop vandaag"
+      },
+      "rain_24h": {
+        "name": "Regen laatste 24 uur"
+      },
+      "rain_month": {
+        "name": "Regen deze maand"
+      },
+      "rain_year": {
+        "name": "Regen dit jaar"
+      },
+      "rain_storm": {
+        "name": "Regen deze bui"
+      },
+      "beaufort": {
+        "name": "Beaufort"
+      },
+      "observed_at": {
+        "name": "Laatste meting"
+      },
+      "forecast_error": {
+        "name": "Verwachtingsfout"
+      }
+    }
+  }
+}

@@ -1,0 +1,84 @@
+blueprint:
+  name: Pro Weather - freeze warning
+  description: >-
+    Runs your actions in the evening when tomorrow's forecast low at your
+    Pro Weather station is at or below your limit, and whenever the station
+    itself drops below it. For covering plants or shutting outdoor taps.
+  domain: automation
+  source_url: https://github.com/LNNRT-STN/ha-pro-weather/blob/main/blueprints/automation/proweather/freeze_alert.yaml
+  input:
+    weather:
+      name: Pro Weather station
+      selector:
+        entity:
+          filter:
+            integration: proweather_solar
+            domain: weather
+    temperature:
+      name: Temperature sensor
+      selector:
+        entity:
+          filter:
+            integration: proweather_solar
+            domain: sensor
+            device_class: temperature
+    limit:
+      name: Temperature limit
+      description: In your Home Assistant temperature unit.
+      default: 0
+      selector:
+        number:
+          min: -30
+          max: 40
+          step: 0.5
+          mode: box
+    check_time:
+      name: Forecast check time
+      default: "18:00:00"
+      selector:
+        time: {}
+    actions:
+      name: Actions
+      selector:
+        action: {}
+
+mode: single
+max_exceeded: silent
+
+triggers:
+  - trigger: time
+    at: !input check_time
+    id: forecast
+  - trigger: numeric_state
+    entity_id: !input temperature
+    below: !input limit
+    id: measured
+
+variables:
+  weather_entity: !input weather
+  limit: !input limit
+
+actions:
+  - if:
+      - condition: trigger
+        id: forecast
+    then:
+      - action: weather.get_forecasts
+        target:
+          entity_id: !input weather
+        data:
+          type: daily
+        response_variable: forecast
+      # Entry 0 is today, whose low has usually passed by evening; entry 1
+      # is tomorrow, whose low is tonight's frost.
+      # `stop`, not a condition: see rain_start.yaml.
+      - if:
+          - condition: template
+            value_template: >-
+              {% set days = forecast[weather_entity].forecast %}
+              {{ days | count < 2 or days[1].templow is none
+                 or days[1].templow > limit }}
+        then:
+          - stop: No frost forecast for tonight
+  - choose: []
+    default: !input actions

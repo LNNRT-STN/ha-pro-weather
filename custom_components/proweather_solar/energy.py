@@ -10,14 +10,15 @@ from __future__ import annotations
 
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
+from .const import CONF_SUBDOMAIN, DOMAIN
 
 
 async def async_get_solar_forecast(
     hass: HomeAssistant, config_entry_id: str
 ) -> dict[str, dict[str, float | int]] | None:
     entry = hass.config_entries.async_get_entry(config_entry_id)
-    if entry is None or entry.domain != DOMAIN:
+    # A weather station entry has no solar forecast to offer.
+    if entry is None or entry.domain != DOMAIN or CONF_SUBDOMAIN in entry.data:
         return None
     coordinator = getattr(entry, "runtime_data", None)
     if coordinator is None or coordinator.data is None:
