@@ -1,12 +1,15 @@
-# Pro Weather Solar Forecast for Home Assistant
+# Pro Weather for Home Assistant
 
-An hour-by-hour power forecast for your own solar panels, from your
-[Pro Weather](https://pro-weather.com) site, in Home Assistant: in the Energy
-dashboard, as sensors for automations, and in the shape Predbat reads.
+Two things from [Pro Weather](https://pro-weather.com) in Home Assistant:
 
-The forecast comes from weather models scored against your own station's
-solar sensor. It needs a Pro Weather site on the Pro plan with panels set up
-under **Setup > Solar forecast**.
+- **Weather station**: any published Pro Weather station's readings, today's
+  highs and lows, rain totals, official weather warnings and the forecast its
+  site shows, as a weather entity and sensors. No account or token needed.
+- **Solar forecast**: an hour-by-hour power forecast for your own solar
+  panels, in the Energy dashboard, as sensors and in the shape Predbat reads.
+  Needs a site on the Pro plan.
+
+Add each one as its own entry; you can have several of both.
 
 ## Install
 
@@ -15,11 +18,71 @@ With [HACS](https://hacs.xyz):
 1. HACS > the three-dot menu > **Custom repositories**.
 2. Repository `https://github.com/LNNRT-STN/ha-pro-weather`, type
    **Integration**, then **Add**.
-3. Search for **Pro Weather Solar Forecast**, download it, and restart Home
-   Assistant.
+3. Search for **Pro Weather**, download it, and restart Home Assistant.
 
 By hand: copy `custom_components/proweather_solar` into your Home Assistant
 `config/custom_components/` folder and restart.
+
+# Weather station
+
+## Set up
+
+**Settings > Devices & services > Add integration > Pro Weather > Weather
+station**, and enter the station's address: `ardooie.pro-weather.com`, the
+station's own domain, or just `ardooie`. It works for any published station,
+yours or someone else's.
+
+The entry reads the same data the station's page and the Pro Weather app
+show, every 5 minutes (the station's own refresh), in the site's units.
+Home Assistant converts them to yours. If the station is briefly unreachable
+the last reading stays up instead of going unavailable.
+
+## Entities
+
+**Weather entity** with the station's readings now, and the daily and hourly
+forecast its site shows. Where Pro Weather's Local Forecast Engine has run
+for the station, the next 24 hours of temperatures are its, corrected
+against what the station measured; the attribution says so.
+
+**Sensors**: temperature, feels like, dew point, humidity, pressure, wind
+speed, gust and direction, rain today, rain rate, solar radiation, UV index,
+air quality index (in the standard the owner chose) and today's high and
+low, each with when it was set. Off by default, enable them under the
+device: strongest gust today, 3-hour pressure change, cloud base, wind run,
+rain in the last 24 hours, this month, this year and this storm, Beaufort,
+the last reading time and the forecast error (the engine's mean error over
+the last days next to the raw models').
+
+A sensor is only created for what the station measures: no UV sensor on a
+station without one. Reload the entry after the station gains a sensor.
+
+**Weather warning** turns on while an official MeteoAlarm (Europe) or NWS
+(US) warning covers the station. Its attributes list each one, most severe
+first: level (yellow, orange, red), category, the issuer's own event text,
+onset, expiry and a link. `highest_level` is there for automations.
+
+## Blueprints
+
+| Blueprint | What it does | Import |
+| --- | --- | --- |
+| Rain starting | Acts when the station measures rain, or the coming hour's rain chance passes your limit while it is still dry, with a quiet period | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FLNNRT-STN%2Fha-pro-weather%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fproweather%2Frain_start.yaml) |
+| High wind | Closes awnings or blinds when a gust passes your limit | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FLNNRT-STN%2Fha-pro-weather%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fproweather%2Fhigh_wind.yaml) |
+| Freeze warning | Acts in the evening when tomorrow's forecast low is at or below your limit, and when the station drops below it | [![Import](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FLNNRT-STN%2Fha-pro-weather%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fproweather%2Ffreeze_alert.yaml) |
+
+Each one takes your own actions: a phone notification, a smart plug, a valve.
+
+## Dashboard
+
+[`dashboards/proweather_dashboard.yaml`](dashboards/proweather_dashboard.yaml)
+is a one-page dashboard built from Home Assistant's own cards only: the
+warning when there is one, the hourly and daily forecast, the readings and
+48 hours of graphs. The file says how to paste it in.
+
+# Solar forecast
+
+The forecast comes from weather models scored against your own station's
+solar sensor. It needs a Pro Weather site on the Pro plan with panels set up
+under **Setup > Solar forecast**.
 
 ## Set up
 
@@ -27,7 +90,7 @@ By hand: copy `custom_components/proweather_solar` into your Home Assistant
    panel arrays if you have not yet, and copy the API token (it starts with
    `pws_`).
 2. In Home Assistant: **Settings > Devices & services > Add integration >
-   Pro Weather Solar Forecast**, and paste the token.
+   Pro Weather > Solar forecast**, and paste the token.
 
 The token is checked with one request. The form tells you if the token is
 unknown, the site is not on the Pro plan, or there are no panels to forecast
@@ -117,7 +180,11 @@ the forecast the shade and the dirt.
 
 ## Privacy
 
-The integration talks to `https://pro-weather.com/api/solar` only (and to
+A weather station entry reads `https://pro-weather.com/api/v1/<station>/view`
+(and `/api/v1/resolve` once, when you enter a custom domain). It sends
+nothing about you or your home.
+
+A solar forecast entry talks to `https://pro-weather.com/api/solar` only (and to
 `/api/solar/production` when you picked a production sensor: your hourly
 solar energy, nothing else), with your token in an `Authorization` header. The token is never logged, and the
 diagnostics download redacts it.

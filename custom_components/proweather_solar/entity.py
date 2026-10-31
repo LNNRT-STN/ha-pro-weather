@@ -9,8 +9,9 @@ from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.event import async_track_utc_time_change
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import DOMAIN, ROOT_DOMAIN
 from .coordinator import ProWeatherCoordinator
+from .station import StationCoordinator
 
 
 class ProWeatherEntity(CoordinatorEntity[ProWeatherCoordinator]):
@@ -51,3 +52,28 @@ class ProWeatherEntity(CoordinatorEntity[ProWeatherCoordinator]):
     def _on_hour(self, _now: datetime) -> None:
         if self.coordinator.data is not None:
             self.async_write_ha_state()
+
+
+class StationEntity(CoordinatorEntity[StationCoordinator]):
+    """One device per station entry, linking to the station's own site."""
+
+    _attr_has_entity_name = True
+
+    def __init__(self, coordinator: StationCoordinator, key: str) -> None:
+        super().__init__(coordinator)
+        entry = coordinator.config_entry
+        self._attr_unique_id = f"{entry.entry_id}_{key}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=entry.title,
+            manufacturer="Pro Weather",
+            model="Weather station",
+            entry_type=DeviceEntryType.SERVICE,
+            configuration_url=f"https://{coordinator.subdomain}.{ROOT_DOMAIN}",
+        )
+
+    @property
+    def available(self) -> bool:
+        # As above: the last good reading beats "unavailable" through a
+        # brief outage, and the coordinator logs the failure.
+        return self.coordinator.data is not None

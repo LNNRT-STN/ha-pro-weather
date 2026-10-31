@@ -1,0 +1,97 @@
+blueprint:
+  name: Pro Weather - rain starting
+  description: >-
+    Runs your actions when your Pro Weather station starts measuring rain, or
+    when the forecast for the coming hour says rain is likely while it is
+    still dry. Runs at most once every few hours.
+  domain: automation
+  source_url: https://github.com/LNNRT-STN/ha-pro-weather/blob/main/blueprints/automation/proweather/rain_start.yaml
+  input:
+    rain_rate:
+      name: Rain rate sensor
+      selector:
+        entity:
+          filter:
+            integration: proweather_solar
+            domain: sensor
+            device_class: precipitation_intensity
+    weather:
+      name: Pro Weather station
+      selector:
+        entity:
+          filter:
+            integration: proweather_solar
+            domain: weather
+    probability:
+      name: Rain chance
+      description: Act on the forecast when the next hour's chance of rain reaches this.
+      default: 70
+      selector:
+        number:
+          min: 10
+          max: 100
+          step: 5
+          unit_of_measurement: "%"
+    quiet_hours:
+      name: Quiet period
+      description: Hours to stay silent after running. 0 runs every time.
+      default: 3
+      selector:
+        number:
+          min: 0
+          max: 24
+          unit_of_measurement: h
+    actions:
+      name: Actions
+      description: What to do, for example send a notification or close a skylight.
+      selector:
+        action: {}
+
+# The quiet period is a delay at the end of a run that acted: in single mode
+# a trigger during it is dropped. A forecast check that finds nothing ends
+# its run at once, so it never holds the quiet period itself.
+mode: single
+max_exceeded: silent
+
+triggers:
+  - trigger: numeric_state
+    entity_id: !input rain_rate
+    above: 0
+    id: measured
+  - trigger: time_pattern
+    minutes: "/15"
+    id: forecast
+
+variables:
+  weather_entity: !input weather
+  rain_rate_entity: !input rain_rate
+  probability: !input probability
+  quiet_hours: !input quiet_hours
+
+actions:
+  - if:
+      - condition: trigger
+        id: forecast
+    then:
+      - action: weather.get_forecasts
+        target:
+          entity_id: !input weather
+        data:
+          type: hourly
+        response_variable: forecast
+      # The first entry is the hour now is in; the second is the next one.
+      # `stop`, not a condition: a failed condition here would only end this
+      # `then` branch, and the actions below would still run.
+      - if:
+          - condition: template
+            value_template: >-
+              {% set hours = forecast[weather_entity].forecast %}
+              {{ states(rain_rate_entity) | float(0) > 0
+                 or hours | count < 2
+                 or (hours[1].precipitation_probability or 0) < probability }}
+        then:
+          - stop: No rain expected in the next hour
+  - choose: []
+    default: !input actions
+  - delay:
+      hours: "{{ quiet_hours }}"

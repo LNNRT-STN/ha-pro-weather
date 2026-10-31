@@ -1,0 +1,80 @@
+# Pro Weather station dashboard, built-in cards only.
+#
+# Settings > Dashboards > Add dashboard > New dashboard from scratch, open it,
+# three-dot menu > Edit dashboard > three-dot menu > Raw configuration editor,
+# and paste this file. Then replace `weerstation_ardooie` everywhere with your
+# station's entity name (look it up under Settings > Devices & services >
+# Pro Weather).
+title: Weather
+views:
+  - title: Now
+    path: now
+    icon: mdi:weather-partly-cloudy
+    max_columns: 3
+    type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: conditional
+            conditions:
+              - condition: state
+                entity: binary_sensor.weerstation_ardooie_weather_warning
+                state: "on"
+            card:
+              type: markdown
+              content: >-
+                {% for w in state_attr('binary_sensor.weerstation_ardooie_weather_warning', 'warnings') %}
+                **{{ w.level | capitalize }}: {{ w.event }}**
+                until {{ as_timestamp(w.expires) | timestamp_custom('%a %H:%M') if w.expires else 'further notice' }}
+                {% endfor %}
+          - type: weather-forecast
+            entity: weather.weerstation_ardooie
+            forecast_type: hourly
+            show_current: true
+            show_forecast: true
+          - type: weather-forecast
+            entity: weather.weerstation_ardooie
+            forecast_type: daily
+            show_current: false
+            show_forecast: true
+      - type: grid
+        cards:
+          - type: tile
+            entity: sensor.weerstation_ardooie_temperature
+          - type: tile
+            entity: sensor.weerstation_ardooie_feels_like
+          - type: tile
+            entity: sensor.weerstation_ardooie_high_today
+          - type: tile
+            entity: sensor.weerstation_ardooie_low_today
+          - type: tile
+            entity: sensor.weerstation_ardooie_humidity
+          - type: tile
+            entity: sensor.weerstation_ardooie_dew_point
+          - type: tile
+            entity: sensor.weerstation_ardooie_wind_speed
+          - type: tile
+            entity: sensor.weerstation_ardooie_wind_gust
+          - type: tile
+            entity: sensor.weerstation_ardooie_atmospheric_pressure
+          - type: tile
+            entity: sensor.weerstation_ardooie_rain_today
+      - type: grid
+        cards:
+          - type: history-graph
+            title: Temperature
+            hours_to_show: 48
+            entities:
+              - entity: sensor.weerstation_ardooie_temperature
+              - entity: sensor.weerstation_ardooie_dew_point
+          - type: history-graph
+            title: Wind
+            hours_to_show: 24
+            entities:
+              - entity: sensor.weerstation_ardooie_wind_speed
+              - entity: sensor.weerstation_ardooie_wind_gust
+          - type: history-graph
+            title: Pressure
+            hours_to_show: 72
+            entities:
+              - entity: sensor.weerstation_ardooie_atmospheric_pressure

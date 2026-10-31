@@ -1,0 +1,180 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pro Weather",
+        "description": "Que voulez-vous ajouter ?",
+        "menu_options": {
+          "station": "Station météo : mesures, prévisions et vigilances",
+          "solar": "Prévision solaire : la puissance prévue de vos panneaux (offre Pro)"
+        }
+      },
+      "station": {
+        "title": "Station Pro Weather",
+        "description": "Saisissez l'adresse de la station, par exemple ardooie.pro-weather.com, son propre domaine, ou simplement ardooie. Toute station Pro Weather publiée fonctionne, sans jeton.",
+        "data": {
+          "subdomain": "Adresse de la station"
+        }
+      },
+      "solar": {
+        "title": "Prévision solaire Pro Weather",
+        "description": "Collez le jeton d'API du tableau de bord de votre site, sous Configuration > Prévision solaire. Il commence par pws_.",
+        "data": {
+          "token": "Jeton d'API"
+        },
+        "sections": {
+          "advanced": {
+            "name": "Avancé",
+            "data": {
+              "base_url": "Adresse du serveur"
+            },
+            "data_description": {
+              "base_url": "Ne changez rien, sauf pour tester contre un serveur de test ou un mock."
+            }
+          }
+        }
+      },
+      "reauth_confirm": {
+        "title": "Nouveau jeton d'API requis",
+        "description": "Pro Weather n'accepte plus le jeton enregistré. Il a probablement été régénéré ou révoqué. Collez le jeton actuel depuis Configuration > Prévision solaire.",
+        "data": {
+          "token": "Jeton d'API"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Pro Weather ne reconnaît pas ce jeton. Copiez-le à nouveau depuis Configuration > Prévision solaire.",
+      "plan_required": "La prévision solaire fait partie de l'offre Pro, et ce site n'y est pas abonné.",
+      "not_set_up": "Le jeton fonctionne, mais il n'y a encore rien à prévoir : ajoutez vos panneaux sous Configuration > Prévision solaire et vérifiez que la station a une position.",
+      "rate_limited": "Trop de requêtes depuis votre réseau au cours de la dernière heure. Réessayez plus tard.",
+      "cannot_connect": "Impossible de joindre Pro Weather. Vérifiez la connexion et réessayez.",
+      "invalid_url": "L'adresse du serveur doit commencer par https:// ou http://.",
+      "not_found": "Aucune station Pro Weather publiée à cette adresse.",
+      "invalid_station": "Ce n'est pas une adresse de station. Essayez par exemple ardooie.pro-weather.com."
+    },
+    "abort": {
+      "already_configured": "C'est déjà configuré.",
+      "reauth_successful": "Le nouveau jeton fonctionne. La prévision est de retour."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options",
+        "description": "Une nouvelle prévision arrive toutes les heures. Interroger plus souvent que toutes les 15 minutes n'apporte rien.\n\nChoisissez le capteur d'énergie qui compte la production de vos panneaux (celui que le tableau de bord Énergie utilise pour la production solaire) et l'intégration envoie chaque heure terminée à Pro Weather, pour que la prévision apprenne l'ombre et la saleté que votre station ne voit pas.",
+        "data": {
+          "scan_interval": "Intervalle de mise à jour (minutes)",
+          "production_sensor": "Capteur de production solaire"
+        },
+        "data_description": {
+          "production_sensor": "Facultatif. Un capteur d'énergie en kWh ou Wh pour l'ensemble de vos panneaux. Laissez vide pour ne rien envoyer."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "corrected": {
+        "name": "Corrigé par la station"
+      },
+      "warning": {
+        "name": "Vigilance météo"
+      }
+    },
+    "sensor": {
+      "power_now": {
+        "name": "Puissance actuelle"
+      },
+      "energy_this_hour": {
+        "name": "Énergie cette heure"
+      },
+      "energy_next_hour": {
+        "name": "Énergie heure suivante"
+      },
+      "energy_today": {
+        "name": "Énergie aujourd'hui"
+      },
+      "energy_remaining_today": {
+        "name": "Énergie restante aujourd'hui"
+      },
+      "energy_tomorrow": {
+        "name": "Énergie demain"
+      },
+      "peak_power_today": {
+        "name": "Puissance maximale aujourd'hui"
+      },
+      "peak_time_today": {
+        "name": "Heure du pic aujourd'hui"
+      },
+      "issued_at": {
+        "name": "Prévision émise"
+      },
+      "feels_like": {
+        "name": "Température ressentie"
+      },
+      "dew_point": {
+        "name": "Point de rosée"
+      },
+      "wind_speed": {
+        "name": "Vitesse du vent"
+      },
+      "wind_gust": {
+        "name": "Rafale"
+      },
+      "wind_bearing": {
+        "name": "Direction du vent"
+      },
+      "rain_today": {
+        "name": "Pluie aujourd'hui"
+      },
+      "rain_rate": {
+        "name": "Intensité de pluie"
+      },
+      "solar": {
+        "name": "Rayonnement solaire"
+      },
+      "uv": {
+        "name": "Indice UV"
+      },
+      "temperature_high_today": {
+        "name": "Maximum aujourd'hui"
+      },
+      "temperature_low_today": {
+        "name": "Minimum aujourd'hui"
+      },
+      "wind_gust_max_today": {
+        "name": "Plus forte rafale aujourd'hui"
+      },
+      "pressure_trend": {
+        "name": "Variation de pression (3 h)"
+      },
+      "cloud_base": {
+        "name": "Base des nuages"
+      },
+      "wind_run": {
+        "name": "Parcours du vent aujourd'hui"
+      },
+      "rain_24h": {
+        "name": "Pluie dernières 24 heures"
+      },
+      "rain_month": {
+        "name": "Pluie ce mois-ci"
+      },
+      "rain_year": {
+        "name": "Pluie cette année"
+      },
+      "rain_storm": {
+        "name": "Pluie de cet épisode"
+      },
+      "beaufort": {
+        "name": "Beaufort"
+      },
+      "observed_at": {
+        "name": "Dernière mesure"
+      },
+      "forecast_error": {
+        "name": "Erreur de prévision"
+      }
+    }
+  }
+}

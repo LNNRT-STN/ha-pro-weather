@@ -2,6 +2,21 @@
   "config": {
     "step": {
       "user": {
+        "title": "Pro Weather",
+        "description": "What do you want to add?",
+        "menu_options": {
+          "station": "Weather station: readings, forecast and warnings",
+          "solar": "Solar forecast: your panels' power forecast (Pro plan)"
+        }
+      },
+      "station": {
+        "title": "Pro Weather station",
+        "description": "Enter the station's address, for example ardooie.pro-weather.com, its own domain, or just ardooie. Any published Pro Weather station works, no token needed.",
+        "data": {
+          "subdomain": "Station address"
+        }
+      },
+      "solar": {
         "title": "Pro Weather solar forecast",
         "description": "Paste the API token from your site's dashboard, under Setup > Solar forecast. It starts with pws_.",
         "data": {
@@ -33,10 +48,12 @@
       "not_set_up": "The token works, but there is nothing to forecast yet: add your panels under Setup > Solar forecast, and make sure the station has a location.",
       "rate_limited": "Too many requests from your network in the last hour. Try again later.",
       "cannot_connect": "Could not reach Pro Weather. Check the connection and try again.",
-      "invalid_url": "The server address must start with https:// or http://."
+      "invalid_url": "The server address must start with https:// or http://.",
+      "not_found": "No published Pro Weather station at this address.",
+      "invalid_station": "That is not a station address. Try something like ardooie.pro-weather.com."
     },
     "abort": {
-      "already_configured": "This token is already set up.",
+      "already_configured": "This is already set up.",
       "reauth_successful": "The new token works. The forecast is back."
     }
   },
@@ -59,6 +76,9 @@
     "binary_sensor": {
       "corrected": {
         "name": "Corrected by station"
+      },
+      "warning": {
+        "name": "Weather warning"
       }
     },
     "sensor": {
@@ -88,6 +108,72 @@
       },
       "issued_at": {
         "name": "Forecast issued"
+      },
+      "feels_like": {
+        "name": "Feels like"
+      },
+      "dew_point": {
+        "name": "Dew point"
+      },
+      "wind_speed": {
+        "name": "Wind speed"
+      },
+      "wind_gust": {
+        "name": "Wind gust"
+      },
+      "wind_bearing": {
+        "name": "Wind direction"
+      },
+      "rain_today": {
+        "name": "Rain today"
+      },
+      "rain_rate": {
+        "name": "Rain rate"
+      },
+      "solar": {
+        "name": "Solar radiation"
+      },
+      "uv": {
+        "name": "UV index"
+      },
+      "temperature_high_today": {
+        "name": "High today"
+      },
+      "temperature_low_today": {
+        "name": "Low today"
+      },
+      "wind_gust_max_today": {
+        "name": "Strongest gust today"
+      },
+      "pressure_trend": {
+        "name": "Pressure change (3 h)"
+      },
+      "cloud_base": {
+        "name": "Cloud base"
+      },
+      "wind_run": {
+        "name": "Wind run today"
+      },
+      "rain_24h": {
+        "name": "Rain last 24 hours"
+      },
+      "rain_month": {
+        "name": "Rain this month"
+      },
+      "rain_year": {
+        "name": "Rain this year"
+      },
+      "rain_storm": {
+        "name": "Rain this storm"
+      },
+      "beaufort": {
+        "name": "Beaufort"
+      },
+      "observed_at": {
+        "name": "Last reading"
+      },
+      "forecast_error": {
+        "name": "Forecast error"
       }
     }
   }

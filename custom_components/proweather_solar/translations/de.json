@@ -1,0 +1,180 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pro Weather",
+        "description": "Was möchtest du hinzufügen?",
+        "menu_options": {
+          "station": "Wetterstation: Messwerte, Vorhersage und Warnungen",
+          "solar": "Solarprognose: die Leistungsprognose deiner Module (Pro-Tarif)"
+        }
+      },
+      "station": {
+        "title": "Pro Weather Wetterstation",
+        "description": "Gib die Adresse der Station ein, zum Beispiel ardooie.pro-weather.com, ihre eigene Domain oder einfach ardooie. Jede veröffentlichte Pro Weather Station funktioniert, ohne Token.",
+        "data": {
+          "subdomain": "Adresse der Station"
+        }
+      },
+      "solar": {
+        "title": "Pro Weather Solarprognose",
+        "description": "Füge das API-Token aus dem Dashboard deiner Seite ein, unter Einrichtung > Solarprognose. Es beginnt mit pws_.",
+        "data": {
+          "token": "API-Token"
+        },
+        "sections": {
+          "advanced": {
+            "name": "Erweitert",
+            "data": {
+              "base_url": "Serveradresse"
+            },
+            "data_description": {
+              "base_url": "Nur ändern, wenn du gegen einen Testserver oder ein Mock testest."
+            }
+          }
+        }
+      },
+      "reauth_confirm": {
+        "title": "Neues API-Token nötig",
+        "description": "Pro Weather akzeptiert das gespeicherte Token nicht mehr. Es wurde wahrscheinlich neu erzeugt oder widerrufen. Füge das aktuelle Token aus Einrichtung > Solarprognose ein.",
+        "data": {
+          "token": "API-Token"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Pro Weather kennt dieses Token nicht. Kopiere es erneut aus Einrichtung > Solarprognose.",
+      "plan_required": "Die Solarprognose gehört zum Pro-Tarif, und diese Seite hat ihn nicht.",
+      "not_set_up": "Das Token funktioniert, aber es gibt noch nichts vorherzusagen: Füge deine Module unter Einrichtung > Solarprognose hinzu und sorge dafür, dass die Station einen Standort hat.",
+      "rate_limited": "Zu viele Anfragen aus deinem Netzwerk in der letzten Stunde. Versuche es später erneut.",
+      "cannot_connect": "Pro Weather ist nicht erreichbar. Prüfe die Verbindung und versuche es erneut.",
+      "invalid_url": "Die Serveradresse muss mit https:// oder http:// beginnen.",
+      "not_found": "Unter dieser Adresse gibt es keine veröffentlichte Pro Weather Station.",
+      "invalid_station": "Das ist keine Stationsadresse. Versuche etwas wie ardooie.pro-weather.com."
+    },
+    "abort": {
+      "already_configured": "Das ist bereits eingerichtet.",
+      "reauth_successful": "Das neue Token funktioniert. Die Prognose ist zurück."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Optionen",
+        "description": "Eine neue Prognose kommt einmal pro Stunde. Häufiger als alle 15 Minuten abzufragen bringt nichts.\n\nWähle den Energiesensor, der zählt, was deine Module erzeugen (den das Energie-Dashboard für die Solarproduktion nutzt), dann sendet die Integration jede abgeschlossene Stunde an Pro Weather, damit die Prognose Schatten und Schmutz lernt, die deine Station nicht sieht.",
+        "data": {
+          "scan_interval": "Aktualisierungsintervall (Minuten)",
+          "production_sensor": "Sensor Solarproduktion"
+        },
+        "data_description": {
+          "production_sensor": "Optional. Ein Energiesensor in kWh oder Wh für alle Module zusammen. Leer lassen, um nichts zu senden."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "corrected": {
+        "name": "Von der Station korrigiert"
+      },
+      "warning": {
+        "name": "Wetterwarnung"
+      }
+    },
+    "sensor": {
+      "power_now": {
+        "name": "Leistung jetzt"
+      },
+      "energy_this_hour": {
+        "name": "Energie diese Stunde"
+      },
+      "energy_next_hour": {
+        "name": "Energie nächste Stunde"
+      },
+      "energy_today": {
+        "name": "Energie heute"
+      },
+      "energy_remaining_today": {
+        "name": "Verbleibende Energie heute"
+      },
+      "energy_tomorrow": {
+        "name": "Energie morgen"
+      },
+      "peak_power_today": {
+        "name": "Spitzenleistung heute"
+      },
+      "peak_time_today": {
+        "name": "Spitzenzeit heute"
+      },
+      "issued_at": {
+        "name": "Prognose erstellt"
+      },
+      "feels_like": {
+        "name": "Gefühlte Temperatur"
+      },
+      "dew_point": {
+        "name": "Taupunkt"
+      },
+      "wind_speed": {
+        "name": "Windgeschwindigkeit"
+      },
+      "wind_gust": {
+        "name": "Windböe"
+      },
+      "wind_bearing": {
+        "name": "Windrichtung"
+      },
+      "rain_today": {
+        "name": "Regen heute"
+      },
+      "rain_rate": {
+        "name": "Regenrate"
+      },
+      "solar": {
+        "name": "Sonnenstrahlung"
+      },
+      "uv": {
+        "name": "UV-Index"
+      },
+      "temperature_high_today": {
+        "name": "Höchstwert heute"
+      },
+      "temperature_low_today": {
+        "name": "Tiefstwert heute"
+      },
+      "wind_gust_max_today": {
+        "name": "Stärkste Böe heute"
+      },
+      "pressure_trend": {
+        "name": "Luftdruckänderung (3 h)"
+      },
+      "cloud_base": {
+        "name": "Wolkenuntergrenze"
+      },
+      "wind_run": {
+        "name": "Windweg heute"
+      },
+      "rain_24h": {
+        "name": "Regen letzte 24 Stunden"
+      },
+      "rain_month": {
+        "name": "Regen diesen Monat"
+      },
+      "rain_year": {
+        "name": "Regen dieses Jahr"
+      },
+      "rain_storm": {
+        "name": "Regen dieses Ereignis"
+      },
+      "beaufort": {
+        "name": "Beaufort"
+      },
+      "observed_at": {
+        "name": "Letzte Messung"
+      },
+      "forecast_error": {
+        "name": "Prognosefehler"
+      }
+    }
+  }
+}
